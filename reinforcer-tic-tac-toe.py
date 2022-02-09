@@ -5,6 +5,7 @@ POINTS_FOR_WIN = 3
 POINTS_FOR_TIE = 2
 POINTS_FOR_LOSS = 1
 POINTS_FOR_POSSIBLE = 2
+TRAINING_ROUNDS = 10000
 class TicTacToe:
 
     def __init__(self):
@@ -280,7 +281,7 @@ def train(times):
     
   return the
 
-model = train(100000)
+model = train(TRAINING_ROUNDS)
 
 game = AIGameHuman()
 
