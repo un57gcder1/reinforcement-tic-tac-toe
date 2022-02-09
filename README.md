@@ -1,1 +1,1 @@
-# reinforcement-tic-tac-toe
+# Tic Tac Toe with (Simple) Reinforcement Learning
