@@ -282,7 +282,3 @@ def train(times):
   return the
 
 model = train(TRAINING_ROUNDS)
-
-game = AIGameHuman()
-
-it = game.start(dictionary = model)
