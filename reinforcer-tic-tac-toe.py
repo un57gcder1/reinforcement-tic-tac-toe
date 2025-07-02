@@ -285,4 +285,4 @@ def train(times):
 
 model = train(TRAINING_ROUNDS)
 game = AIGameHuman()
-it = game.start(dictionary = model)
+#it = game.start(dictionary = model)
