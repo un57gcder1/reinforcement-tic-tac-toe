@@ -6,6 +6,9 @@ POINTS_FOR_TIE = 0
 POINTS_FOR_LOSS = -1
 POINTS_FOR_POSSIBLE = 0
 TRAINING_ROUNDS = 100000
+
+# The following class TicTacToe is standard and widely available
+# on the Internet with unknown source and attribution.
 class TicTacToe:
 
     def __init__(self):
