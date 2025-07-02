@@ -1,14 +1,11 @@
 import random
 
 DEFAULT_DICT = {}
-POINTS_FOR_WIN = 3
-POINTS_FOR_TIE = 2
-POINTS_FOR_LOSS = 1
-POINTS_FOR_POSSIBLE = 2
-TRAINING_ROUNDS = 10000
-
-# The following class TicTacToe is standard and widely available
-# on the Internet with unknown source and attribution.
+POINTS_FOR_WIN = 1
+POINTS_FOR_TIE = 0
+POINTS_FOR_LOSS = -1
+POINTS_FOR_POSSIBLE = 0
+TRAINING_ROUNDS = 100000
 class TicTacToe:
 
     def __init__(self):
@@ -55,6 +52,11 @@ class TicTacToe:
         if self.board[i] != "O" and self.board[i] != "X":
           return False
       return True
+
+    def is_game_over(self):
+        if self.is_tie() or self.has_player_won('X') or self.has_player_won('O'):
+            return True
+        return False
     
     def switch_turn(self, player):
       return 'X' if player == 'O' else 'O'
@@ -93,6 +95,10 @@ class TicTacToe:
           self.show_board()
           return
         player = self.switch_turn(player)
+      if self.has_player_won(player):
+        print("Player", player, "Won")
+        self.show_board()
+        return
       else:
         print("Match drawn.")
         self.show_board()
@@ -148,7 +154,6 @@ class AIGameHuman(TicTacToe):
             self.append_dictionary(dictionary, state_list[some_index], action_list[some_index], POINTS_FOR_LOSS)
             for other_index in range(len(possible_actions_list[some_index])):
               self.append_dictionary(dictionary, state_list[some_index], possible_actions_list[some_index][other_index], POINTS_FOR_POSSIBLE)
-
           return dictionary
         whose_turn = self.switch_turn(whose_turn)
       else:
@@ -189,65 +194,60 @@ class AIGameHuman(TicTacToe):
       return possible
 
 class AIGame(AIGameHuman):
-  def __init__(self):
+    def __init__(self):
       self.board = []
       self.ai_player = 'X' if self.random_first_player() == 1 else 'O'
       self.other_ai_player = 'O' if self.ai_player == 'X' else 'X'
-  def start(self, **kwargs):
-      dictionary = kwargs.get("dictionary", DEFAULT_DICT)
-      state_list = []
-      action_list = []
-      possible_actions_list = []
-      self.create_board()
-      ai_player = self.ai_player
-      other_ai_player = self.other_ai_player
-      whose_turn = ai_player if ai_player == "X" else other_ai_player
-      while True:
-        if self.is_tie() == True:
-          break
-        if whose_turn == other_ai_player:
-          state = tuple(self.board) # Testing
-          state_list.append(state)
-          action = self.ai_choice(dictionary, state, other_ai_player)
-          action_list.append(action)
-          possible_actions = self.get_possible(state)
-          possible_actions_list.append(tuple(possible_actions))
-          self.player_spot_available_ifso_take(action, other_ai_player)
-        if self.is_tie() == True:
-          for some_index in range(len(state_list)):
-            self.append_dictionary(dictionary, state_list[some_index], action_list[some_index], POINTS_FOR_TIE)
-            for other_index in range(len(possible_actions_list[some_index])):
-              self.append_dictionary(dictionary, state_list[some_index], possible_actions_list[some_index][other_index], POINTS_FOR_POSSIBLE)
-          return dictionary
-        if whose_turn == ai_player:
-          state = tuple(self.board) # Testing
-          state_list.append(state)
-          action = self.ai_choice(dictionary, state, ai_player)
-          action_list.append(action)
-          possible_actions = self.get_possible(state)
-          possible_actions_list.append(tuple(possible_actions))
-          self.player_spot_available_ifso_take(action, ai_player)
-        if self.is_tie() == True:
-          for some_index in range(len(state_list)):
-            self.append_dictionary(dictionary, state_list[some_index], action_list[some_index], POINTS_FOR_TIE)
-            for other_index in range(len(possible_actions_list[some_index])):
-              self.append_dictionary(dictionary, state_list[some_index], possible_actions_list[some_index][other_index], POINTS_FOR_POSSIBLE)
-          return dictionary
+    def start(self, **kwargs):
+        dictionary = kwargs.get("dictionary", DEFAULT_DICT)
+        state_list = []
+        action_list = []
+        possible_actions_list = []
+        self.create_board()
+        ai_player = self.ai_player
+        other_ai_player = self.other_ai_player
+        whose_turn = ai_player if ai_player == "X" else other_ai_player
+        while True:
+            if self.is_game_over() == True:
+                break;
+            if whose_turn == other_ai_player:
+                state = tuple(self.board)
+                state_list.append(state)
+                action = self.ai_choice(dictionary, state, other_ai_player)
+                action_list.append(action)
+                possible_actions = self.get_possible(state)
+                possible_actions_list.append(tuple(possible_actions))
+                self.player_spot_available_ifso_take(action, other_ai_player)
+            if self.is_game_over() == True:
+                break
+            if whose_turn == ai_player:
+                state = tuple(self.board)
+                state_list.append(state)
+                action = self.ai_choice(dictionary, state, ai_player)
+                action_list.append(action)
+                possible_actions = self.get_possible(state)
+                possible_actions_list.append(tuple(possible_actions))
+                self.player_spot_available_ifso_take(action, ai_player)
+            whose_turn = self.switch_turn(whose_turn)
         if self.has_player_won(ai_player):
-          for some_index in range(len(state_list)):
-            self.append_dictionary(dictionary, state_list[some_index], action_list[some_index], POINTS_FOR_WIN)
-            for other_index in range(len(possible_actions_list[some_index])):
-              self.append_dictionary(dictionary, state_list[some_index], possible_actions_list[some_index][other_index], POINTS_FOR_POSSIBLE)
-          return dictionary
+            for some_index in range(len(state_list)):
+                self.append_dictionary(dictionary, state_list[some_index], action_list[some_index], POINTS_FOR_WIN)
+                for other_index in range(len(possible_actions_list[some_index])):
+                    self.append_dictionary(dictionary, state_list[some_index], possible_actions_list[some_index][other_index], POINTS_FOR_POSSIBLE)
+            return dictionary
         elif self.has_player_won(other_ai_player):
-          for some_index in range(len(state_list)):
-            self.append_dictionary(dictionary, state_list[some_index], action_list[some_index], POINTS_FOR_LOSS)
-            for other_index in range(len(possible_actions_list[some_index])):
-              self.append_dictionary(dictionary, state_list[some_index], possible_actions_list[some_index][other_index], POINTS_FOR_POSSIBLE)
-
-          return dictionary
-        whose_turn = self.switch_turn(whose_turn)
-  def ai_choice(self, dictionary, state, player):
+            for some_index in range(len(state_list)):
+                self.append_dictionary(dictionary, state_list[some_index], action_list[some_index], POINTS_FOR_LOSS)
+                for other_index in range(len(possible_actions_list[some_index])):
+                    self.append_dictionary(dictionary, state_list[some_index], possible_actions_list[some_index][other_index], POINTS_FOR_POSSIBLE)
+            return dictionary
+        elif self.is_tie() == True:
+            for some_index in range(len(state_list)):
+                self.append_dictionary(dictionary, state_list[some_index], action_list[some_index], POINTS_FOR_TIE)
+                for other_index in range(len(possible_actions_list[some_index])):
+                    self.append_dictionary(dictionary, state_list[some_index], possible_actions_list[some_index][other_index], POINTS_FOR_POSSIBLE)
+            return dictionary
+    def ai_choice(self, dictionary, state, player):
       possible = self.get_possible(state)
       if state in dictionary and player == self.ai_player:
         detail_dict = dictionary[state]
@@ -259,17 +259,14 @@ class AIGame(AIGameHuman):
           has = key_list[i]
           choice = [has] * it
           choice_list.append(choice)
-        action = random.choice(choice_list)[0]
+        the = random.choice(choice_list)
+        if len(the) != 0:
+            action = the[0]
+        else:
+            action = random.choice(possible)
         return action
       elif state in dictionary and player == self.other_ai_player:
-        detail_dict = dictionary[state]
-        key_list = list(detail_dict.keys())
-        val_list = list(detail_dict.values())
-        weight_list = []
-        for val in val_list:
-          weight = 1 / val
-          weight_list.append(weight)
-        action = random.choices(key_list, weights=weight_list)[0]
+        action = random.choice(possible)
         return action
       else:
         action = random.choice(possible)
@@ -280,8 +277,9 @@ def train(times):
   game = AIGame()
   the = game.start()
   for i in range(times):
-    the = game.start(dictionary = the)
-    
+    the = game.start(dictionary = the) 
   return the
 
 model = train(TRAINING_ROUNDS)
+game = AIGameHuman()
+it = game.start(dictionary = model)
